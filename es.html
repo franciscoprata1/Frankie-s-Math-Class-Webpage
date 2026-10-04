@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <!-- ============================================================
+       FRANKIE'S MATHCLASS — one-page website (SPANISH VERSION: es.html)
+       Structure of this file:
+         1. <head>   → page settings, font, and all the CSS (styles)
+         2. <body>   → the content, section by section
+         3. <script> → the small bit of JavaScript that sends the form
+       Tip: search for "EDIT ME" to find every placeholder to replace.
+       ============================================================ -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Frankie's MathClass</title>
+  <!-- The two language versions of this page -->
+  <link rel="alternate" hreflang="en" href="index.html">
+  <link rel="alternate" hreflang="es" href="es.html">
+  <meta name="description" content="Frankie's MathClass — clases particulares de Matemáticas IB, fichas estructuradas y vídeos gratuitos. La pieza que faltaba en el aprendizaje de tu hijo.">
+
+  <!-- Font: a clean grotesque close to the one in the brand identity -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ----------------------------------------------------------
+       1. DESIGN TOKENS
+       All brand colours live here, taken from the identity guide
+       and from your LaTeX worksheets (myred / mybg). Change a
+       colour once here and it changes everywhere.
+       ---------------------------------------------------------- */
+    :root {
+      --red:   #E53118;          /* brand red (same as \definecolor{myred}) */
+      --paper: #FAF7EF;          /* cream background (same as mybg)         */
+      --ink:   #151412;          /* near-black text                          */
+      --muted: #5E5A53;          /* secondary text                           */
+      --line:  #E7E1D3;          /* thin borders                             */
+      --grid:  rgba(229, 49, 24, 0.13); /* the red graph-paper lines         */
+      --white: #FFFFFF;
+      --max:   1120px;           /* max width of the content                 */
+      --font:  "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    /* ----------------------------------------------------------
+       2. BASE STYLES — apply to the whole page
+       ---------------------------------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 18px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; }
+    h1, h2, h3 { line-height: 1.02; letter-spacing: -0.035em; margin: 0; }
+    p { margin: 0 0 1em; }
+
+    /* A centred column that every section uses */
+    .wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+    /* The graph-paper look from the identity guide, made with pure CSS:
+       two repeating 1px lines, one horizontal and one vertical. */
+    .graph-paper {
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* Small uppercase labels, like "LOGO" / "BRANDMARK" in the guide */
+    .eyebrow {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 13px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .eyebrow .num { color: var(--red); font-weight: 700; }
+
+    .section { padding: 110px 0; border-top: 1px solid var(--line); }
+    .section-title { font-size: clamp(36px, 5vw, 60px); font-weight: 700; margin-bottom: 20px; }
+    .lead { font-size: 20px; color: var(--muted); max-width: 620px; }
+    .red { color: var(--red); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 14px 22px; border-radius: 6px;
+      font: 600 16px/1 var(--font); text-decoration: none;
+      border: 2px solid var(--ink); cursor: pointer;
+      transition: transform .15s ease, background .15s ease, color .15s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-red { background: var(--red); border-color: var(--red); color: var(--white); }
+    .btn-ghost { background: transparent; color: var(--ink); }
+    .btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+    /* The small puzzle-piece brandmark (drawn once below as an SVG <symbol>) */
+    .piece { color: var(--red); }
+
+    /* ----------------------------------------------------------
+       3. NAVIGATION BAR
+       "position: sticky" keeps it at the top while scrolling.
+       ---------------------------------------------------------- */
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(250, 247, 239, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo svg { width: 38px; height: 34px; }
+    .wordmark { line-height: 0.92; letter-spacing: -0.03em; font-size: 17px; }
+    .wordmark b { display: block; font-weight: 800; }
+    .nav-links { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; font-size: 15px; font-weight: 500; }
+    .nav-links a { text-decoration: none; }
+    .nav-links a:hover { color: var(--red); }
+    .nav .btn { padding: 10px 16px; font-size: 15px; }
+    .nav-right { display: flex; align-items: center; gap: 18px; }
+    /* Language switch: the current language is bold and red, the other one is a link */
+    .lang-switch { display: flex; gap: 6px; font-size: 14px; font-weight: 500; color: var(--muted); }
+    .lang-switch a { text-decoration: none; }
+    .lang-switch a:hover { color: var(--red); }
+    .lang-switch [aria-current] { color: var(--red); font-weight: 700; }
+
+    /* ----------------------------------------------------------
+       4. SECTION 01 — THE BRAND (hero)
+       A two-column CSS grid: text left, puzzle right.
+       ---------------------------------------------------------- */
+    .hero { padding: 80px 0 110px; }
+    .hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
+    .hero h1 { font-size: clamp(46px, 6.6vw, 88px); font-weight: 800; margin-bottom: 28px; }
+    .hero .lead { margin-bottom: 36px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+    .puzzle { width: 100%; max-width: 520px; justify-self: end; overflow: visible; }
+    .puzzle .outline { fill: var(--paper); stroke: var(--red); stroke-width: 3; stroke-linejoin: round; }
+    .puzzle .label { font-family: var(--font); font-size: 40px; letter-spacing: -1.4px; fill: var(--ink); }
+    .puzzle .missing path { fill: var(--red); stroke: var(--red); stroke-width: 3; stroke-linejoin: round; }
+    .puzzle .missing text { fill: var(--white); }
+
+    /* The red piece "clicks" into place when the page loads */
+    .puzzle .missing {
+      transform-box: fill-box; transform-origin: center;
+      animation: snap-in 1s cubic-bezier(.2,.9,.3,1.2) .4s both;
+    }
+    @keyframes snap-in {
+      from { transform: translate(70px, 70px) rotate(10deg); opacity: 0; }
+      to   { transform: none; opacity: 1; }
+    }
+    /* After the intro animation, scrolling takes over: the piece slides out
+       as you scroll down and clicks back into place as you scroll up (see the script). */
+    .puzzle .missing.scroll-linked { animation: none; transition: transform .25s ease-out; }
+    @media (prefers-reduced-motion: reduce) { .puzzle .missing { animation: none; } }
+
+    /* ----------------------------------------------------------
+       5. SECTION 02 — ABOUT FRANKIE
+       ---------------------------------------------------------- */
+    .about .wrap { display: grid; grid-template-columns: 280px 1fr; gap: 72px; align-items: start; } /* 280px = photo width */
+    .portrait {
+      position: relative; margin: 0;
+      aspect-ratio: 4 / 5; border: 2px solid var(--ink); border-radius: 6px;
+      display: grid; place-items: center; text-align: center;
+      color: var(--muted); font-size: 15px;
+    }
+    /* The photo is pinned to the frame's edges, so it can never be taller than the frame
+       (Safari on iPhone otherwise lets it spill out). object-position keeps the face in view. */
+    .portrait img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center top; border-radius: 4px;
+    }
+    .portrait .piece { position: absolute; right: -16px; bottom: -16px; width: 64px; height: 57px; }
+
+    .facts { margin: 36px 0 0; border-top: 1px solid var(--ink); }
+    .fact {
+      display: grid; grid-template-columns: 170px 1fr; gap: 20px;
+      padding: 20px 0; border-bottom: 1px solid var(--line);
+    }
+    .fact dt { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--red); padding-top: 4px; }
+    .fact dd { margin: 0; }
+
+    /* ----------------------------------------------------------
+       6. SECTION 03 — TESTIMONIALS
+       ---------------------------------------------------------- */
+    .quotes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 56px; }
+    .quote {
+      background: var(--white); border: 1px solid var(--line); border-radius: 8px;
+      padding: 32px 28px; display: flex; flex-direction: column; gap: 18px;
+    }
+    .tag {
+      align-self: flex-start; font-size: 12px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; padding: 6px 10px; border-radius: 99px;
+      border: 1.5px solid var(--red); color: var(--red);
+    }
+    .quote blockquote { margin: 0; font-size: 17px; line-height: 1.45; flex: 1; }
+    .quote blockquote::before { content: "“"; display: block; font-size: 64px; line-height: .6; color: var(--red); font-weight: 800; margin-bottom: 6px; }
+    .quote cite { font-style: normal; font-size: 15px; color: var(--muted); }
+    .quote cite b { color: var(--ink); display: block; }
+
+    /* ----------------------------------------------------------
+       7. SECTION 04 — CONTENT (worksheets + videos)
+       ---------------------------------------------------------- */
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 56px; }
+    .card { background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 36px; display: flex; flex-direction: column; }
+    .card h3 { font-size: 30px; font-weight: 700; margin-bottom: 12px; }
+    .card p { color: var(--muted); }
+    .card ul { padding-left: 20px; margin: 0 0 28px; color: var(--muted); }
+    .card li { margin-bottom: 6px; }
+    .card .preview { margin-top: auto; }
+
+    /* A mini version of your real LaTeX worksheet */
+    .worksheet {
+      position: relative; background: var(--paper);
+      border: 1px solid var(--line); border-radius: 4px;
+      padding: 26px 26px 70px; box-shadow: 0 18px 30px -18px rgba(0,0,0,.25);
+      transform: rotate(-1.5deg); font-size: 15px;
+    }
+    .worksheet .ws-title { text-align: center; font-weight: 700; font-size: 17px; margin-bottom: 18px; }
+    .worksheet .ws-sec { font-weight: 700; margin-bottom: 10px; }
+    .worksheet .ws-ex { margin: 0 0 8px; font-family: "Times New Roman", serif; font-style: italic; }
+    .worksheet .ws-ex b { font-family: var(--font); font-style: normal; margin-right: 12px; }
+    .worksheet .piece { position: absolute; right: 14px; bottom: 12px; width: 52px; height: 46px; }
+
+    .video {
+      position: relative; aspect-ratio: 16 / 9; border-radius: 6px; overflow: hidden;
+      display: grid; place-items: center; text-decoration: none; border: 1px solid var(--line);
+    }
+    .play {
+      width: 76px; height: 76px; border-radius: 50%; background: var(--red);
+      display: grid; place-items: center; transition: transform .2s ease;
+    }
+    .video:hover .play { transform: scale(1.08); }
+    .play::after { content: ""; margin-left: 6px; border-left: 22px solid var(--white); border-top: 14px solid transparent; border-bottom: 14px solid transparent; }
+    .video-caption { position: absolute; left: 16px; bottom: 14px; font-size: 14px; font-weight: 600; background: var(--paper); padding: 4px 10px; border-radius: 4px; }
+    .free-badge { display: inline-block; background: var(--red); color: var(--white); font-size: 12px; font-weight: 700; letter-spacing: .08em; padding: 4px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+
+    /* ----------------------------------------------------------
+       8. SECTION 05 — CONTACT FORM
+       ---------------------------------------------------------- */
+    .contact .wrap { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 64px; align-items: start; }
+    .contact-intro ul { padding-left: 20px; color: var(--muted); }
+    form { background: var(--white); border: 2px solid var(--ink); border-radius: 10px; padding: 36px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    label, legend { font-size: 14px; font-weight: 600; }
+    input[type="text"], input[type="email"], textarea {
+      font: 16px var(--font); color: var(--ink);
+      padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 6px;
+      background: var(--paper); width: 100%;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(229,49,24,.15); }
+    textarea { min-height: 130px; resize: vertical; }
+    fieldset { border: 0; padding: 0; margin: 0 0 20px; }
+    legend { margin-bottom: 10px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    /* Checkboxes styled as clickable "chips": the real checkbox is hidden,
+       and the label changes colour when it's checked. */
+    .chip input { position: absolute; opacity: 0; pointer-events: none; }
+    .chip span {
+      display: inline-block; padding: 9px 16px; border-radius: 99px; cursor: pointer;
+      border: 1.5px solid var(--ink); font-size: 15px; font-weight: 500; user-select: none;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .chip input:checked + span { background: var(--red); border-color: var(--red); color: var(--white); }
+    .chip input:focus-visible + span { box-shadow: 0 0 0 3px rgba(229,49,24,.3); }
+    .hidden { display: none !important; }
+    .form-status { margin: 16px 0 0; font-size: 15px; font-weight: 500; }
+    .form-status.ok { color: #1D7A3A; }
+    .form-status.err { color: var(--red); }
+
+    /* ----------------------------------------------------------
+       9. FOOTER
+       ---------------------------------------------------------- */
+    footer { background: var(--ink); color: var(--paper); padding: 48px 0; }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; }
+    footer .piece { color: var(--red); }
+    footer small { color: #A9A49A; font-size: 14px; }
+    footer a { text-decoration: none; font-weight: 500; }
+    footer a:hover { color: var(--red); }
+
+    /* ----------------------------------------------------------
+       10. RESPONSIVE — how the layout changes on phones/tablets.
+       Below 900px wide, every two-column grid becomes one column.
+       ---------------------------------------------------------- */
+    @media (max-width: 900px) {
+      .hero .wrap, .about .wrap, .contact .wrap, .content-grid { grid-template-columns: 1fr; gap: 48px; }
+      .quotes { grid-template-columns: 1fr; }
+      .puzzle { justify-self: center; }
+      .portrait { max-width: 200px; }
+      .section { padding: 80px 0; }
+    }
+    @media (max-width: 720px) {
+      .nav-links { display: none; }
+      .row { grid-template-columns: 1fr; gap: 0; }
+      .fact { grid-template-columns: 1fr; gap: 4px; }
+      .card, form { padding: 24px; }
+      .portrait .piece { right: -10px; bottom: -14px; width: 70px; height: 62px; } /* keep it inside narrow screens */
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       SVG SPRITE — the puzzle-piece brandmark is drawn ONCE here as a
+       <symbol>, then reused anywhere with <use href="#piece">.
+       The path: start top-left, go right, cut a round notch into the
+       top edge (arc), go down, across the bottom, up the left side,
+       then a round tab sticks out to the left (another arc).
+       ============================================================ -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="piece" viewBox="-12 0 254 222">
+      <path d="M30 10 H145 A22 22 0 1 0 175 10 H230 V210 H30 V145 A22 22 0 1 1 30 115 Z"
+            fill="currentColor" stroke="currentColor" stroke-width="6" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <header class="nav">
+    <div class="wrap">
+      <a href="#top" class="logo" aria-label="Frankie's MathClass — inicio">
+        <svg class="piece" aria-hidden="true"><use href="#piece"/></svg>
+        <span class="wordmark"><b>Frankie’s</b>MathClass</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#brand">La idea</a></li>
+        <li><a href="#about">Sobre Frankie</a></li>
+        <li><a href="#reviews">Opiniones</a></li>
+        <li><a href="#content">Materiales</a></li>
+      </ul>
+      <div class="nav-right">
+        <div class="lang-switch" aria-label="Idioma">
+          <a href="index.html" hreflang="en" lang="en">EN</a><span aria-hidden="true">/</span><span aria-current="page">ES</span>
+        </div>
+        <a href="#contact" class="btn btn-red">Contacto</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============ 01 · THE BRAND (hero) ============ -->
+    <section class="hero" id="brand">
+      <div class="wrap">
+        <div>
+          <p class="eyebrow"><span class="num">01</span> Matemáticas IB · la pieza que falta</p>
+          <h1>Las mates encajan <span class="red">pieza a pieza</span>.</h1>
+          <p class="lead">
+            Entender de verdad las matemáticas consiste en unir varias piezas esenciales: el esfuerzo del alumno,
+            la guía del profesor y el currículo escolar. Frankie’s MathClass es el apoyo extra que completa el puzle.
+            Como casi todo en la vida, nadie necesita tener un “don natural”: con el plan adecuado y práctica
+            constante, cualquiera puede destacar en matemáticas.
+          </p>
+          <div class="hero-actions">
+            <a href="#contact" class="btn btn-red">Pide información</a>
+            <a href="#content" class="btn btn-ghost">Ver los materiales</a>
+          </div>
+        </div>
+
+        <!-- The 2×2 puzzle from the identity guide, drawn as 4 SVG paths.
+             The grid is 600×600 units; each piece is a 300×300 square
+             with round tabs (sticking out) or notches (cut in) made with arcs. -->
+        <svg class="puzzle" viewBox="-6 -6 612 612" role="img"
+             aria-label="Cuatro piezas de puzle: esfuerzo del alumno, apoyo del profesor, currículo escolar y Frankie's MathClass como la última pieza roja">
+          <!-- Student's effort: tab on the right, notch on the bottom -->
+          <path class="outline" d="M0 0 H300 V128 A30 30 0 1 1 300 172 V300 H172 A30 30 0 1 0 128 300 H0 Z"/>
+          <!-- Teacher's support: notch on the left, tab on the bottom -->
+          <path class="outline" d="M300 0 H600 V300 H472 A30 30 0 1 1 428 300 H300 V172 A30 30 0 1 0 300 128 Z"/>
+          <!-- School curriculum: tab on top, notch on the right -->
+          <path class="outline" d="M0 300 H128 A30 30 0 1 1 172 300 H300 V428 A30 30 0 1 0 300 472 V600 H0 Z"/>
+
+          <text class="label" x="30" y="72">Esfuerzo del</text>
+          <text class="label" x="30" y="114">alumno</text>
+          <text class="label" x="570" y="72" text-anchor="end">Apoyo del</text>
+          <text class="label" x="570" y="114" text-anchor="end">profesor</text>
+          <text class="label" x="30" y="530">Currículo</text>
+          <text class="label" x="30" y="572">escolar</text>
+
+          <!-- Frankie's MathClass: the missing piece (animated in CSS) -->
+          <g class="missing">
+            <path d="M300 300 H428 A30 30 0 1 0 472 300 H600 V600 H300 V472 A30 30 0 1 1 300 428 Z"/>
+            <text class="label" x="330" y="530" font-weight="800">Frankie’s</text>
+            <text class="label" x="330" y="572">MathClass</text>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ============ 02 · ABOUT FRANKIE ============ -->
+    <section class="section about" id="about">
+      <div class="wrap">
+        <figure class="portrait graph-paper">
+          <!-- The photo must sit in the same folder as index.html, and the name
+               must match exactly (GitHub is case-sensitive: frankie.jpg ≠ Frankie.JPG). -->
+          <img src="frankie.jpg" alt="Frankie, profesor de Matemáticas IB">
+          <svg class="piece" aria-hidden="true"><use href="#piece"/></svg>
+        </figure>
+
+        <div>
+          <p class="eyebrow"><span class="num">02</span> Sobre Frankie</p>
+          <h2 class="section-title">Hola, soy Frankie.</h2>
+          <p class="lead">
+            Soy Frankie, profesor de Matemáticas y <strong>exalumno del IB</strong>. He pasado por el mismo
+            curso y los mismos exámenes que mis alumnos, así que sé dónde se complica y cómo explicarlo para que
+            todo encaje.
+          </p>
+
+          <dl class="facts">
+            <div class="fact"><dt>Titulación</dt><dd>Grado en Ingeniería Biomédica, UPC (2025)</dd></div>
+            <div class="fact"><dt>Formación</dt><dd>Diploma IB: 39/45 · Selectividad: 12,567/14</dd></div>
+            <div class="fact"><dt>Trayectoria</dt><dd>Bilingüe. Empecé dando clases presenciales a alumnos de ESO y después pasé al IB y Bachillerato. Hoy, todas mis clases son online.</dd></div>
+            <div class="fact"><dt>Experiencia</dt><dd>Más de 6 años y más de 50 alumnos, en clases individuales y en grupo: Diploma IB y Selectividad.</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 03 · TESTIMONIALS ============ -->
+    <!-- Real quotes, published with each person's permission.
+         To add one, copy an <article class="quote"> block and edit it. -->
+    <section class="section" id="reviews">
+      <div class="wrap">
+        <p class="eyebrow"><span class="num">03</span> Lo que dicen</p>
+        <h2 class="section-title">Familias, alumnos<br>y profesores.</h2>
+
+        <div class="quotes">
+          <article class="quote">
+            <span class="tag">Familia</span>
+            <blockquote lang="es">Queremos dar las gracias de corazón a Frankie por toda su ayuda, paciencia y dedicación con nuestros hijos. Los resultados en matemáticas han mejorado muchísimo y, sobre todo, han recuperado la confianza y las ganas de aprender. Nos sentimos muy afortunados de haber contado con él durante estos 4 años.</blockquote>
+            <cite><b>Eva</b>Familia de Javier y Alvaro (promociones de 2023 y 2026)</cite>
+          </article>
+          <article class="quote">
+            <span class="tag">Familia</span>
+            <blockquote lang="es">Frankie es un profesor muy cercano con el alumno, empatiza mucho con él, por lo que desarrolla un gran vínculo pero siempre manteniendo una gran profesionalidad.</blockquote>
+            <cite><b>Lorena</b>Familia de Connie, 1.º del IB (2025)</cite>
+          </article>
+          <article class="quote">
+            <span class="tag">Profesor</span>
+            <blockquote lang="es">Frankie fue un alumno muy dedicado, siempre buscando mejorar y dispuesto a aprender. Estoy convencido de que, gracias a sus habilidades comunicativas y a su conocimiento matemático, será un gran tutor para alumnos de Bachillerato.</blockquote>
+            <cite><b>A. García</b>Profesor de Cálculo 1, UPC</cite>
+          </article>
+          <article class="quote">
+            <span class="tag">Alumno</span>
+            <blockquote lang="en">Frankie is a brilliant tutor who always goes the extra mile and makes sure you actually understand what he explains. He helped me regain my confidence in mathematics, and I’m grateful for the final results I achieved.</blockquote>
+            <cite><b>Tuğra</b>Promoción IB 2025</cite>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 04 · CONTENT ============ -->
+    <section class="section graph-paper" id="content">
+      <div class="wrap">
+        <p class="eyebrow"><span class="num">04</span> Los materiales</p>
+        <h2 class="section-title">Hecho para cada alumno,<br>no para un libro de texto.</h2>
+        <p class="lead">Todo sigue un camino progresivo: de los fundamentos a problemas tipo examen, paso a paso.</p>
+
+        <div class="content-grid">
+          <article class="card">
+            <h3>Fichas personalizadas</h3>
+            <p>Fichas creadas para el curso y el nivel de cada alumno, con espacio para resolver cada ejercicio a mano.</p>
+            <ul>
+              <li>Adaptadas al temario del IB y a los próximos exámenes</li>
+              <li>Práctica paso a paso, de lo básico a problemas tipo examen</li>
+              <li>Imprimibles, claras y sin distracciones</li>
+            </ul>
+            <!-- A small replica of one of your real worksheets -->
+            <div class="preview worksheet" aria-hidden="true">
+              <div class="ws-title">Worksheet: Basic Geometric Sequences</div>
+              <div class="ws-sec">1. Find the general term</div>
+              <p class="ws-ex"><b>1.1</b>3, 6, 12, 24, …</p>
+              <p class="ws-ex"><b>1.2</b>128, 64, 32, 16, …</p>
+              <p class="ws-ex"><b>1.3</b>5, −10, 20, −40, …</p>
+              <svg class="piece" aria-hidden="true"><use href="#piece"/></svg>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Vídeos explicativos <span class="free-badge">GRATIS</span></h3>
+            <p>Clases estructuradas de Matemáticas IB en YouTube: teoría y ejemplos resueltos para repasar cualquier tema en casa, a su ritmo.</p>
+            <ul>
+              <li>Explicaciones claras de los temas y ejercicios clave</li>
+              <li>Pausa, rebobina y vuelve a verlo antes de un examen</li>
+              <li>Gratis para todos</li>
+            </ul>
+            <!-- EDIT ME: put your channel link in href. To show a real video
+                 instead, replace this whole <a> with YouTube's "Share → Embed" code. -->
+            <a class="preview video graph-paper" href="https://www.youtube.com/@your-channel" target="_blank" rel="noopener">
+              <span class="play" aria-hidden="true"></span>
+              <span class="video-caption">Ver en YouTube →</span>
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 · CONTACT ============ -->
+    <section class="section contact" id="contact">
+      <div class="wrap">
+        <div class="contact-intro">
+          <p class="eyebrow"><span class="num">05</span> Contacto</p>
+          <h2 class="section-title">Encuentra la<br><span class="red">pieza que falta.</span></h2>
+          <p class="lead">Envíame un mensaje y te responderé por email. Cuéntame:</p>
+          <ul>
+            <li>Tu nombre y el de tu hijo o hija</li>
+            <li>El curso que estudia</li>
+            <li>Qué te gustaría saber</li>
+          </ul>
+        </div>
+
+        <!-- HOW YOUR EMAIL STAYS HIDDEN:
+             The form doesn't contain your email address at all. It sends the
+             message to Formspree (a free form service), which forwards it to
+             the inbox you registered with them.
+             EDIT ME: create a form at formspree.io and replace YOUR_FORM_ID. -->
+        <form id="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+          <div class="row">
+            <div class="field">
+              <label for="parent">Tu nombre</label>
+              <input id="parent" name="parent_name" type="text" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="child">Nombre de tu hijo/a</label>
+              <input id="child" name="child_name" type="text" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="course">Curso que estudia</label>
+              <input id="course" name="course" type="text" placeholder="p. ej. IB Math AA SL, 1.º" required>
+            </div>
+            <div class="field">
+              <label for="email">Tu email (para responderte)</label>
+              <input id="email" name="email" type="email" autocomplete="email" required>
+            </div>
+          </div>
+
+          <fieldset>
+            <legend>Me gustaría saber…</legend>
+            <div class="chips">
+              <label class="chip"><input type="checkbox" name="interested_in" value="Precios"><span>Precios</span></label>
+              <label class="chip"><input type="checkbox" name="interested_in" value="Horarios"><span>Horarios</span></label>
+              <label class="chip"><input type="checkbox" name="interested_in" value="Disponibilidad"><span>Disponibilidad</span></label>
+              <label class="chip"><input type="checkbox" name="interested_in" value="Otra cosa"><span>Otra cosa</span></label>
+            </div>
+          </fieldset>
+
+          <div class="field">
+            <label for="message">Mensaje</label>
+            <textarea id="message" name="message" placeholder="¿Algo más que deba saber? Próximos exámenes, temas que le cuestan…"></textarea>
+          </div>
+
+          <!-- Tells you which version of the site the message came from -->
+          <input type="hidden" name="language" value="Español">
+
+          <!-- Honeypot: invisible to humans; spam bots fill it in and get ignored -->
+          <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off">
+
+          <button type="submit" class="btn btn-red">Enviar mensaje</button>
+          <p class="form-status" id="form-status" role="status"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    <div class="wrap">
+      <a href="#top" class="logo" aria-label="Volver arriba">
+        <svg class="piece" aria-hidden="true"><use href="#piece"/></svg>
+        <span class="wordmark"><b>Frankie’s</b>MathClass</span>
+      </a>
+      <a href="https://www.youtube.com/@your-channel" target="_blank" rel="noopener">YouTube ↗</a>
+      <small>© <span id="year"></span> Frankie’s MathClass</small>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       JAVASCRIPT — only two small jobs:
+       1. Put the current year in the footer.
+       2. Check the form and send it without leaving the page.
+       ============================================================ -->
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    /* ---- Puzzle piece that follows the scroll ----
+       "progress" goes from 0 (piece in place) to 1 (piece fully out). It starts
+       growing once the middle of the puzzle rises above the middle of the screen. */
+    const puzzle = document.querySelector(".puzzle");
+    const missingPiece = document.querySelector(".puzzle .missing");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function movePiece() {
+      const box = puzzle.getBoundingClientRect();
+      const puzzleMiddle = box.top + box.height / 2;
+      const screenMiddle = window.innerHeight / 2;
+      let progress = (screenMiddle - puzzleMiddle) / (box.height * 0.8);
+      progress = Math.min(Math.max(progress, 0), 1);       // keep it between 0 and 1
+      const distance = progress * 90;                         // in SVG units
+      const angle = progress * 14;                            // in degrees
+      missingPiece.style.transform = `translate(${distance}px, ${distance}px) rotate(${angle}deg)`;
+    }
+
+    if (!reduceMotion) {
+      // Wait until the intro "snap-in" animation has finished, then hand over to scrolling.
+      missingPiece.addEventListener("animationend", () => {
+        missingPiece.classList.add("scroll-linked");
+        movePiece();
+        let ticking = false;
+        window.addEventListener("scroll", () => {
+          if (ticking) return;            // update at most once per frame
+          ticking = true;
+          requestAnimationFrame(() => { movePiece(); ticking = false; });
+        }, { passive: true });
+      }, { once: true });
+    }
+
+    const form = document.getElementById("contact-form");
+    const statusEl = document.getElementById("form-status");
+
+    function showStatus(text, type) {
+      statusEl.textContent = text;
+      statusEl.className = "form-status " + type;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault(); // stop the browser's default page reload
+
+      // 1) Required text fields filled in and email valid?
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      // 2) At least one topic chip ticked?
+      if (!form.querySelector('input[name="interested_in"]:checked')) {
+        showStatus("Elige al menos una opción de lo que te gustaría saber.", "err");
+        return;
+      }
+      // 3) Form not connected to Formspree yet?
+      if (form.action.includes("YOUR_FORM_ID")) {
+        showStatus("El formulario aún no está conectado: añade tu ID de Formspree en el código.", "err");
+        return;
+      }
+
+      // 4) Send it
+      const button = form.querySelector("button");
+      button.disabled = true;
+      button.textContent = "Enviando…";
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          body: new FormData(form),
+          headers: { Accept: "application/json" }
+        });
+        if (response.ok) {
+          form.reset();
+          showStatus("¡Gracias! Tu mensaje se ha enviado. Te responderé pronto por email.", "ok");
+        } else {
+          showStatus("Algo ha fallado. Inténtalo de nuevo en un momento.", "err");
+        }
+      } catch (error) {
+        showStatus("No se ha podido enviar. Revisa tu conexión e inténtalo de nuevo.", "err");
+      } finally {
+        button.disabled = false;
+        button.textContent = "Enviar mensaje";
+      }
+    });
+  </script>
+</body>
+</html>
